@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # universal_converter_calculator
 
 A new Flutter project.
@@ -14,3 +15,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# Universal-Converter-Calculator
+>>>>>>> 9f6703af8b0162dcf95351223f678e1716c8a1dc

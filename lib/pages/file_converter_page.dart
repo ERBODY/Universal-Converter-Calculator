@@ -27,8 +27,9 @@ class _FileConverterPageState extends State<FileConverterPage> {
   bool _isConverting = false;
   double _conversionProgress = 0.0;
   String? _downloadUrl;
-  
-  static const _cloudConvertToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiM2ZiODVkMTBhMTdjMzhkMTQ2MTRkODZmNjkwYzRmNjFiMThlZDA1NTFmNzk3ZWUwMTYxNDRjY2ViNmU4MDZkYTQ1MzU4NzQyOTA0MTdkYWMiLCJpYXQiOjE3NTE2NDMzMTEuNTY2NzczLCJuYmYiOjE3NTE2NDMzMTEuNTY2Nzc1LCJleHAiOjQ5MDczMTY5MTEuNTYyMjYsInN1YiI6IjcyMTQzMzQyIiwic2NvcGVzIjpbInVzZXIucmVhZCIsInVzZXIud3JpdGUiLCJ0YXNrLnJlYWQiLCJ0YXNrLndyaXRlIiwid2ViaG9vay5yZWFkIiwid2ViaG9vay53cml0ZSIsInByZXNldC5yZWFkIiwicHJlc2V0LndyaXRlIl19.opQfxX8w9sTDR7BtZyMsLw6QhfIEnHOvfD4xSsGc1gJ2ZVwJ625wXeM4LzV5guNz5lhiqjMIh6dCxizrXy63zbfSKuOwV6N3ehSVKFpyIViBNS-xlDpsL-ODlYPpc4UghxanvSCld4bAchwbSUgk9Ab4dwZpQsFUgsPVKbgUYXOQl4JPc56vpTb6FoUFsRpF4Sbd6hFcIbDtrhQzRhPeCpuqFoFAG2NOEti8kDZdnQmqs-JMFPLuoRF-uQsIcJR-uNpTakkcQmOUmroIw5yZi79sXUV_eyxDvFlYWqQehTmodl8mj8MsagGM3ezo37i164M_StoPD7mSkoVlHOJVKB4lGizAFdqUi1iG3PlDLEq-5aP0j0QgF9QD4WCOxGoqagGIsWXTtPyAo4HvXMQmS85R_n0mIw-F3hT8ajgUo4X3NuEClSCvwoI1SaXToIEeK2SWD7wnoLLGXB3mFrDfoo3vQhwxySPNkb9W7dqDMXCI9aEpS8aNTih-RG49x_cNqghZhZIAUlO1cxJClCWR8w99dQQs-pmUjkStrTktoOG3s3vR0iSK9Rtq35yMF0LCb58ZffTYC_6v4eCwg6SzNzNXK_1Pe638nBpzir4EMk0YW9ymeLg4w19kxgHPahe2Ncquy0V3S3xos1Y78hGytBS6cmpOr4FOJOgrg-KWf0E';
+
+  static const _cloudConvertToken =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiM2ZiODVkMTBhMTdjMzhkMTQ2MTRkODZmNjkwYzRmNjFiMThlZDA1NTFmNzk3ZWUwMTYxNDRjY2ViNmU4MDZkYTQ1MzU4NzQyOTA0MTdkYWMiLCJpYXQiOjE3NTE2NDMzMTEuNTY2NzczLCJuYmYiOjE3NTE2NDMzMTEuNTY2Nzc1LCJleHAiOjQ5MDczMTY5MTEuNTYyMjYsInN1YiI6IjcyMTQzMzQyIiwic2NvcGVzIjpbInVzZXIucmVhZCIsInVzZXIud3JpdGUiLCJ0YXNrLnJlYWQiLCJ0YXNrLndyaXRlIiwid2ViaG9vay5yZWFkIiwid2ViaG9vay53cml0ZSIsInByZXNldC5yZWFkIiwicHJlc2V0LndyaXRlIl19.opQfxX8w9sTDR7BtZyMsLw6QhfIEnHOvfD4xSsGc1gJ2ZVwJ625wXeM4LzV5guNz5lhiqjMIh6dCxizrXy63zbfSKuOwV6N3ehSVKFpyIViBNS-xlDpsL-ODlYPpc4UghxanvSCld4bAchwbSUgk9Ab4dwZpQsFUgsPVKbgUYXOQl4JPc56vpTb6FoUFsRpF4Sbd6hFcIbDtrhQzRhPeCpuqFoFAG2NOEti8kDZdnQmqs-JMFPLuoRF-uQsIcJR-uNpTakkcQmOUmroIw5yZi79sXUV_eyxDvFlYWqQehTmodl8mj8MsagGM3ezo37i164M_StoPD7mSkoVlHOJVKB4lGizAFdqUi1iG3PlDLEq-5aP0j0QgF9QD4WCOxGoqagGIsWXTtPyAo4HvXMQmS85R_n0mIw-F3hT8ajgUo4X3NuEClSCvwoI1SaXToIEeK2SWD7wnoLLGXB3mFrDfoo3vQhwxySPNkb9W7dqDMXCI9aEpS8aNTih-RG49x_cNqghZhZIAUlO1cxJClCWR8w99dQQs-pmUjkStrTktoOG3s3vR0iSK9Rtq35yMF0LCb58ZffTYC_6v4eCwg6SzNzNXK_1Pe638nBpzir4EMk0YW9ymeLg4w19kxgHPahe2Ncquy0V3S3xos1Y78hGytBS6cmpOr4FOJOgrg-KWf0E';
 
   Future<void> _pickFile() async {
     try {
@@ -80,7 +81,8 @@ class _FileConverterPageState extends State<FileConverterPage> {
       _showErrorDialog('Please select a file and target format');
       return;
     }
-    if (_sourceFormat == null || !isValidConversion(_sourceFormat!, _targetFormat)) {
+    if (_sourceFormat == null ||
+        !isValidConversion(_sourceFormat!, _targetFormat)) {
       _showErrorDialog('Invalid or unsupported conversion!');
       return;
     }
@@ -101,9 +103,7 @@ class _FileConverterPageState extends State<FileConverterPage> {
         },
         body: jsonEncode({
           "tasks": {
-            "import-my-file": {
-              "operation": "import/upload"
-            },
+            "import-my-file": {"operation": "import/upload"},
             "convert-my-file": {
               "operation": "convert",
               "input": "import-my-file",
@@ -130,15 +130,16 @@ class _FileConverterPageState extends State<FileConverterPage> {
 
       // Step 2: Upload File to S3
       final uploadRequest = http.MultipartRequest('POST', Uri.parse(uploadUrl));
-      
+
       // Add all form parameters
       (uploadParams as Map<String, dynamic>).forEach((key, value) {
         uploadRequest.fields[key] = value.toString();
       });
-      
+
       // Add file to upload
-      uploadRequest.files.add(await http.MultipartFile.fromPath('file', _selectedFile!.path));
-      
+      uploadRequest.files
+          .add(await http.MultipartFile.fromPath('file', _selectedFile!.path));
+
       // Track upload progress
       final uploadStream = await uploadRequest.send();
       int totalBytes = 0;
@@ -156,7 +157,7 @@ class _FileConverterPageState extends State<FileConverterPage> {
           });
         }
       });
-      
+
       await uploadStream.stream.toBytes();
       if (uploadStream.statusCode != 204) {
         throw Exception('File upload failed');
@@ -170,14 +171,14 @@ class _FileConverterPageState extends State<FileConverterPage> {
           Uri.parse("https://api.cloudconvert.com/v2/jobs/$jobId"),
           headers: {'Authorization': 'Bearer $_cloudConvertToken'},
         );
-        
+
         if (checkRes.statusCode != 200) {
           throw Exception('Failed to check job status');
         }
-        
+
         final checkData = jsonDecode(checkRes.body);
         final status = checkData['data']['status'];
-        
+
         if (status == 'finished') {
           jobDone = true;
           final exportTask = checkData['data']['tasks']
@@ -191,7 +192,6 @@ class _FileConverterPageState extends State<FileConverterPage> {
         } else if (status == 'error') {
           throw Exception('Conversion failed');
         } else if (status == 'processing') {
-          setstate(
           setState(() {
             _conversionProgress = 0.5 + (_conversionProgress * 0.5);
           });
@@ -363,18 +363,23 @@ class _FileConverterPageState extends State<FileConverterPage> {
                 ),
               ),
             // Target Format Dropdown (all valid for detected source)
-            if (_sourceFormat != null && getValidTargetFormats(_sourceFormat!).isNotEmpty)
+            if (_sourceFormat != null &&
+                getValidTargetFormats(_sourceFormat!).isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: InputDecorator(
                   decoration: InputDecoration(
                     labelText: 'Target Format',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      value: _targetFormat.isNotEmpty && getValidTargetFormats(_sourceFormat!).contains(_targetFormat)
+                      value: _targetFormat.isNotEmpty &&
+                              getValidTargetFormats(_sourceFormat!)
+                                  .contains(_targetFormat)
                           ? _targetFormat
                           : null,
                       hint: const Text('Select target format'),
@@ -385,7 +390,9 @@ class _FileConverterPageState extends State<FileConverterPage> {
                           child: Text(format),
                         );
                       }).toList(),
-                      onChanged: (_selectedFile != null && _sourceFormat != null && getValidTargetFormats(_sourceFormat!).isNotEmpty)
+                      onChanged: (_selectedFile != null &&
+                              _sourceFormat != null &&
+                              getValidTargetFormats(_sourceFormat!).isNotEmpty)
                           ? (val) {
                               setState(() {
                                 _targetFormat = val ?? '';
@@ -416,7 +423,8 @@ class _FileConverterPageState extends State<FileConverterPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                        Icon(Icons.info_outline,
+                            color: Colors.blue.shade700, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'File Summary',
@@ -430,12 +438,16 @@ class _FileConverterPageState extends State<FileConverterPage> {
                     ),
                     const SizedBox(height: 12),
                     _buildSummaryRow('Name', _selectedFileName ?? ''),
-                    const Divider(height: 16, thickness: 0.5, color: Colors.blueGrey),
-                    _buildSummaryRow('Size', '${(_selectedFile!.lengthSync() / 1024).toStringAsFixed(2)} KB'),
-                    const Divider(height: 16, thickness: 0.5, color: Colors.blueGrey),
+                    const Divider(
+                        height: 16, thickness: 0.5, color: Colors.blueGrey),
+                    _buildSummaryRow('Size',
+                        '${(_selectedFile!.lengthSync() / 1024).toStringAsFixed(2)} KB'),
+                    const Divider(
+                        height: 16, thickness: 0.5, color: Colors.blueGrey),
                     _buildSummaryRow('Type', _selectedFileExtension ?? ''),
                     if (_targetFormat.isNotEmpty) ...[
-                      const Divider(height: 16, thickness: 0.5, color: Colors.blueGrey),
+                      const Divider(
+                          height: 16, thickness: 0.5, color: Colors.blueGrey),
                       _buildSummaryRow('Convert To', _targetFormat),
                     ],
                   ],
@@ -459,15 +471,18 @@ class _FileConverterPageState extends State<FileConverterPage> {
                             child: CircularProgressIndicator(
                               value: _conversionProgress,
                               backgroundColor: Colors.white.withOpacity(0.3),
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                               strokeWidth: 2,
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Text('Converting... ${(100 * _conversionProgress).toInt()}%'),
+                          Text(
+                              'Converting... ${(100 * _conversionProgress).toInt()}%'),
                         ],
                       )
-                    : Text('Convert File', style: TextStyle(fontWeight: FontWeight.bold)),
+                    : Text('Convert File',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: (_selectedFile != null &&
                         _targetFormat.isNotEmpty &&
                         !_isConverting)
