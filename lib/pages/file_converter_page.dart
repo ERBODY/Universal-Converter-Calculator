@@ -332,10 +332,8 @@ class _FileConverterPageState extends State<FileConverterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          Translations.getTranslation(widget.currentLanguage, 'file_converter'),
-        ),
+      appBar: StandardAppBar(
+        title: Translations.getTranslation(widget.currentLanguage, 'file_converter'),
         actions: [
           IconButton(
             icon: const Icon(Icons.clear),
@@ -349,282 +347,325 @@ class _FileConverterPageState extends State<FileConverterPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // File Selection Card
-            Card(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300, width: 2),
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.grey.shade50,
+            _buildFileSelectionSection(),
+            if (_selectedFile != null) ...[
+              _buildFormatSelectionSection(),
+              _buildFileSummarySection(),
+              _buildConversionSection(),
+            ],
+            if (_downloadUrl != null) _buildDownloadSection(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFileSelectionSection() {
+    return AppContainer(
+      child: Column(
+        children: [
+          const Text(
+            'Select File',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: _pickFile,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(32.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).colorScheme.outline, width: 2, style: BorderStyle.solid),
+                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              child: _selectedFile == null
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.cloud_upload,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap to select file',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.description,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _selectedFileName ?? '',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${(_selectedFile!.lengthSync() / 1024).toStringAsFixed(2)} KB',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (!_isFileSizeValid(_selectedFile!))
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.warning, color: Colors.red, size: 16),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'File size exceeds $_maxFileSizeMB MB limit',
+                                  style: TextStyle(color: Colors.red, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormatSelectionSection() {
+    if (_sourceFormat != null && getValidTargetFormats(_sourceFormat!).isNotEmpty) {
+      return Column(
+        children: [
+          if (_selectedFileExtension != null)
+            InfoCard(
+              title: 'Source Format',
+              content: _selectedFileExtension!,
+              icon: Icons.file_present,
+            ),
+          AppContainer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Target Format',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                const SizedBox(height: 16),
+                StandardDropdown<String>(
+                  value: _targetFormat.isNotEmpty &&
+                          getValidTargetFormats(_sourceFormat!).contains(_targetFormat)
+                      ? _targetFormat
+                      : null,
+                  labelText: 'Select target format',
+                  hintText: 'Choose conversion format',
+                  items: getValidTargetFormats(_sourceFormat!)
+                      .map<DropdownMenuItem<String>>((format) {
+                    return DropdownMenuItem<String>(
+                      value: format,
+                      child: Text(format),
+                    );
+                  }).toList(),
+                  onChanged: (_selectedFile != null &&
+                          _sourceFormat != null &&
+                          getValidTargetFormats(_sourceFormat!).isNotEmpty)
+                      ? (val) {
+                          setState(() {
+                            _targetFormat = val ?? '';
+                          });
+                        }
+                      : null,
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildFileSummarySection() {
+    if (_selectedFile != null) {
+      return InfoCard(
+        title: 'File Summary',
+        content: '''Name: ${_selectedFileName ?? ''}
+Size: ${(_selectedFile!.lengthSync() / 1024).toStringAsFixed(2)} KB
+Type: ${_selectedFileExtension ?? ''}
+${_targetFormat.isNotEmpty ? 'Convert to: $_targetFormat' : ''}''',
+        icon: Icons.info_outline,
+        iconColor: Theme.of(context).colorScheme.primary,
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildConversionSection() {
+    return Column(
+      children: [
+        const SizedBox(height: 8),
+        PrimaryButton(
+          text: _isConverting
+              ? 'Converting... ${(100 * _conversionProgress).toInt()}%'
+              : 'Convert File',
+          icon: Icons.transform,
+          isLoading: _isConverting,
+          onPressed: (_selectedFile != null &&
+                  _targetFormat.isNotEmpty &&
+                  !_isConverting &&
+                  _isFileSizeValid(_selectedFile!))
+              ? _convertFile
+              : null,
+        ),
+        if (_isConverting) ...[
+          const SizedBox(height: 16),
+          AppContainer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
+                    Icon(Icons.sync, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
                     const Text(
-                      'Select File',
+                      'Conversion Progress',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    GestureDetector(
-                      onTap: _pickFile,
-                      child: _selectedFile == null
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.cloud_upload,
-                                  size: 48,
-                                  color: Colors.grey,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Tap to select file',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 14,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.description,
-                                  size: 48,
-                                  color: Colors.blue,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _selectedFileName ?? '',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${(_selectedFile!.lengthSync() / 1024).toStringAsFixed(2)} KB',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 12),
+                LinearProgressIndicator(
+                  value: _conversionProgress,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${(100 * _conversionProgress).toInt()}% complete',
+                  style: const TextStyle(fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            // Source Format (auto-detected, not editable)
-            if (_selectedFile != null && _selectedFileExtension != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Row(
-                  children: [
-                    const Text('Source Format: ',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 8),
-                    Text(_selectedFileExtension ?? '',
-                        style: TextStyle(fontSize: 16)),
-                  ],
-                ),
-              ),
-            // Target Format Dropdown (all valid for detected source)
-            if (_sourceFormat != null &&
-                getValidTargetFormats(_sourceFormat!).isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'Target Format',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _targetFormat.isNotEmpty &&
-                              getValidTargetFormats(_sourceFormat!)
-                                  .contains(_targetFormat)
-                          ? _targetFormat
-                          : null,
-                      hint: const Text('Select target format'),
-                      items: getValidTargetFormats(_sourceFormat!)
-                          .map<DropdownMenuItem<String>>((format) {
-                        return DropdownMenuItem<String>(
-                          value: format,
-                          child: Text(format),
-                        );
-                      }).toList(),
-                      onChanged: (_selectedFile != null &&
-                              _sourceFormat != null &&
-                              getValidTargetFormats(_sourceFormat!).isNotEmpty)
-                          ? (val) {
-                              setState(() {
-                                _targetFormat = val ?? '';
-                              });
-                            }
-                          : null,
-                      isExpanded: true,
-                    ),
-                  ),
-                ),
-              ),
-            // Summary Section
-            if (_selectedFile != null)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(bottom: 16.0),
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8.0),
-                  border: Border.all(
-                    color: Colors.blue.shade100,
-                    width: 1.0,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.info_outline,
-                            color: Colors.blue.shade700, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          'File Summary',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade800,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildSummaryRow('Name', _selectedFileName ?? ''),
-                    const Divider(
-                        height: 16, thickness: 0.5, color: Colors.blueGrey),
-                    _buildSummaryRow('Size',
-                        '${(_selectedFile!.lengthSync() / 1024).toStringAsFixed(2)} KB'),
-                    const Divider(
-                        height: 16, thickness: 0.5, color: Colors.blueGrey),
-                    _buildSummaryRow('Type', _selectedFileExtension ?? ''),
-                    if (_targetFormat.isNotEmpty) ...[
-                      const Divider(
-                          height: 16, thickness: 0.5, color: Colors.blueGrey),
-                      _buildSummaryRow('Convert To', _targetFormat),
-                    ],
-                  ],
-                ),
-              ),
-            const SizedBox(height: 16),
-            // Convert Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: _isConverting
-                    ? const Icon(Icons.transform)
-                    : const Icon(Icons.transform),
-                label: _isConverting
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              value: _conversionProgress,
-                              backgroundColor: Colors.white.withOpacity(0.3),
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                              strokeWidth: 2,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                              'Converting... ${(100 * _conversionProgress).toInt()}%'),
-                        ],
-                      )
-                    : Text('Convert File',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                onPressed: (_selectedFile != null &&
-                        _targetFormat.isNotEmpty &&
-                        !_isConverting)
-                    ? _convertFile
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Download section and summary after conversion
-            if (_downloadUrl != null) ...[
-              const SizedBox(height: 20),
-              Card(
-                color: Colors.grey[100],
-                elevation: 3,
-                margin: EdgeInsets.symmetric(vertical: 12),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("✅ Conversion Summary:",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      SizedBox(height: 8),
-                      Text("Original: " + (_selectedFileName ?? '')),
-                      Text("Converted to: $_targetFormat"),
-                      Text("Estimated size: " +
-                          ((_selectedFile != null &&
-                                  _selectedFile!.existsSync())
-                              ? (_selectedFile!.lengthSync() ~/ 1024).toString()
-                              : '-') +
-                          " KB"),
-                      SizedBox(height: 8),
-                      Text("Download Link:"),
-                      SelectableText(_downloadUrl!),
-                      SizedBox(height: 12),
-                      ElevatedButton.icon(
-                        icon: Icon(Icons.download),
-                        label: Text("Download Now"),
-                        onPressed: () async {
-                          final url = Uri.parse(_downloadUrl!);
-                          if (await canLaunchUrl(url)) {
-                            await launchUrl(url,
-                                mode: LaunchMode.externalApplication);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDownloadSection() {
+    return AppContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 24),
+              const SizedBox(width: 8),
+              const Text(
+                'Conversion Complete!',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
                 ),
               ),
             ],
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Original: ${_selectedFileName ?? ''}',
+            style: const TextStyle(fontSize: 14),
+          ),
+          Text(
+            'Converted to: $_targetFormat',
+            style: const TextStyle(fontSize: 14),
+          ),
+          Text(
+            'Estimated size: ${((_selectedFile != null && _selectedFile!.existsSync()) ? (_selectedFile!.lengthSync() ~/ 1024).toString() : '-')} KB',
+            style: const TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Download Link:',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
+            ),
+            child: SelectableText(
+              _downloadUrl!,
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+          const SizedBox(height: 12),
+          PrimaryButton(
+            text: 'Download Now',
+            icon: Icons.download,
+            onPressed: () async {
+              final url = Uri.parse(_downloadUrl!);
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              }
+            },
+          ),
+          const SizedBox(height: 8),
+          SecondaryButton(
+            text: 'Start New Conversion',
+            icon: Icons.refresh,
+            onPressed: () async {
+              final confirmed = await showStandardConfirmation(
+                context,
+                'Clear and Start Over?',
+                'This will clear the current file and results to start a new conversion.',
+              );
+              if (confirmed) {
+                _clearAll();
+              }
+            },
+          ),
+        ],
       ),
     );
   }
