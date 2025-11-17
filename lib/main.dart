@@ -41,8 +41,9 @@ class _UniversalConverterCalculatorAppState
     setState(() {
       _isLightTheme = prefs.getBool('isLightTheme') ?? false;
       _themeMode = _isLightTheme ? ThemeMode.light : ThemeMode.dark;
-      // Default to English, not Arabic
-      _currentLanguage = prefs.getString('language') ?? 'en';
+      // Default to Arabic for RTL users, fallback to English
+      final savedLanguage = prefs.getString('language');
+      _currentLanguage = savedLanguage ?? 'ar';
     });
   }
 
