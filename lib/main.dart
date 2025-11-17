@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'home_page.dart';
 import 'utils/translations.dart';
 
-void main() {
+void main() async {
+  // Load environment variables
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    print('Warning: Could not load .env file: $e');
+    print('Please create a .env file based on .env.example');
+  }
+
   runApp(const UniversalConverterCalculatorApp());
 }
 
