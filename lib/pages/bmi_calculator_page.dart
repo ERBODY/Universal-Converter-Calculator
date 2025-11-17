@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/translations.dart';
+import '../widgets/standardized_components.dart';
 
 class BMICalculatorPage extends StatefulWidget {
   final String currentLanguage;
