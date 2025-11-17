@@ -75,7 +75,7 @@ class _UniversalConverterCalculatorAppState
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: Translations.getTranslation('en', 'app_title'),
+      title: Translations.getTranslation(_currentLanguage, 'app_title'),
       theme: ThemeData.light().copyWith(
         colorScheme: ColorScheme.light(
           primary: Colors.blue,
@@ -129,9 +129,8 @@ class _UniversalConverterCalculatorAppState
       home: HomePage(
         toggleTheme: _toggleTheme,
         isLightTheme: _isLightTheme,
-        currentLanguage: 'en',
-        changeLanguage:
-            (String lang) {}, // Empty function since we only have English
+        currentLanguage: _currentLanguage,
+        changeLanguage: _changeLanguage,
       ),
     );
   }
