@@ -28,6 +28,7 @@ class _UniversalConverterCalculatorAppState
     extends State<UniversalConverterCalculatorApp> {
   ThemeMode _themeMode = ThemeMode.dark;
   bool _isLightTheme = false;
+  String _currentLanguage = 'en';
 
   @override
   void initState() {
@@ -40,6 +41,7 @@ class _UniversalConverterCalculatorAppState
     setState(() {
       _isLightTheme = prefs.getBool('isLightTheme') ?? false;
       _themeMode = _isLightTheme ? ThemeMode.light : ThemeMode.dark;
+      _currentLanguage = prefs.getString('language') ?? 'en';
     });
   }
 
@@ -50,6 +52,24 @@ class _UniversalConverterCalculatorAppState
     });
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLightTheme', _isLightTheme);
+  }
+
+  void _changeLanguage(String language) async {
+    setState(() {
+      _currentLanguage = language;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('language', language);
+
+    // Show success message
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(Translations.getTranslation(language, 'language_changed_successfully')),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
