@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/standardized_components.dart';
 
 class CalorieCalculatorPage extends StatefulWidget {
   const CalorieCalculatorPage({super.key});
