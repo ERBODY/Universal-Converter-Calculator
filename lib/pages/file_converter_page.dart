@@ -69,6 +69,41 @@ class _FileConverterPageState extends State<FileConverterPage> {
     }
   }
 
+  // Validate file size before conversion
+  bool _isFileSizeValid(File file) {
+    final fileSizeMB = file.lengthSync() / (1024 * 1024);
+    return fileSizeMB <= _maxFileSizeMB;
+  }
+
+  // Show configuration error dialog
+  void _showConfigurationError() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Configuration Error'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('CloudConvert API key is not configured.'),
+            SizedBox(height: 8),
+            Text('To fix this issue:'),
+            SizedBox(height: 4),
+            Text('1. Copy .env.example to .env'),
+            Text('2. Add your CloudConvert API key to .env'),
+            Text('3. Restart the application'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
