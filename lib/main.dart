@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'home_page.dart';
 import 'utils/translations.dart';
 
-void main() {
+void main() async {
+  // Load environment variables
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    print('Warning: Could not load .env file: $e');
+    print('Please create a .env file based on .env.example');
+  }
+
   runApp(const UniversalConverterCalculatorApp());
 }
 
@@ -19,6 +28,7 @@ class _UniversalConverterCalculatorAppState
     extends State<UniversalConverterCalculatorApp> {
   ThemeMode _themeMode = ThemeMode.dark;
   bool _isLightTheme = false;
+  String _currentLanguage = 'en';
 
   @override
   void initState() {
@@ -31,6 +41,7 @@ class _UniversalConverterCalculatorAppState
     setState(() {
       _isLightTheme = prefs.getBool('isLightTheme') ?? false;
       _themeMode = _isLightTheme ? ThemeMode.light : ThemeMode.dark;
+      _currentLanguage = prefs.getString('language') ?? 'en';
     });
   }
 
@@ -43,10 +54,28 @@ class _UniversalConverterCalculatorAppState
     prefs.setBool('isLightTheme', _isLightTheme);
   }
 
+  void _changeLanguage(String language) async {
+    setState(() {
+      _currentLanguage = language;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('language', language);
+
+    // Show success message
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(Translations.getTranslation(language, 'language_changed_successfully')),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: Translations.getTranslation('en', 'app_title'),
+      title: Translations.getTranslation(_currentLanguage, 'app_title'),
       theme: ThemeData.light().copyWith(
         colorScheme: ColorScheme.light(
           primary: Colors.blue,
@@ -100,9 +129,8 @@ class _UniversalConverterCalculatorAppState
       home: HomePage(
         toggleTheme: _toggleTheme,
         isLightTheme: _isLightTheme,
-        currentLanguage: 'en',
-        changeLanguage:
-            (String lang) {}, // Empty function since we only have English
+        currentLanguage: _currentLanguage,
+        changeLanguage: _changeLanguage,
       ),
     );
   }

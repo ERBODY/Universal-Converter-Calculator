@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/standardized_components.dart';
 
 class CalorieCalculatorPage extends StatefulWidget {
   const CalorieCalculatorPage({super.key});
@@ -18,10 +19,17 @@ class _CalorieCalculatorPageState extends State<CalorieCalculatorPage> {
     double height = double.tryParse(_heightController.text) ?? 0.0;
     double weight = double.tryParse(_weightController.text) ?? 0.0;
     int age = int.tryParse(_ageController.text) ?? 0;
+
+    // Input validation
+    if (height <= 0 || weight <= 0 || age <= 0) {
+      showStandardError(context, 'Invalid Input', 'Please enter valid positive values for all fields');
+      return;
+    }
+
     double bmr;
 
-    // Basic BMR calculation using Mifflin-St Jeor Equation
-    bmr = 10 * weight + 6.25 * height - 5 * age + 5; // Assuming male for simplicity
+    // Basic BMR calculation using Mifflin-St Jeor Equation (assuming male for simplicity)
+    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
 
     double activityMultiplier;
     switch (_activityLevel) {
@@ -44,64 +52,162 @@ class _CalorieCalculatorPageState extends State<CalorieCalculatorPage> {
     double dailyCalories = bmr * activityMultiplier;
 
     setState(() {
-      _result = dailyCalories.toStringAsFixed(2);
+      _result = dailyCalories.toStringAsFixed(0);
+    });
+  }
+
+  void _clearAll() {
+    setState(() {
+      _heightController.clear();
+      _weightController.clear();
+      _ageController.clear();
+      _activityLevel = 'Sedentary';
+      _result = '';
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calorie Calculator'),
+      appBar: StandardAppBar(
+        title: 'Calorie Calculator',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: _clearAll,
+            tooltip: 'Clear All',
+          ),
+        ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _heightController,
-              decoration: const InputDecoration(
-                labelText: 'Enter height (cm)',
+            AppContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Personal Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  StandardInputField(
+                    controller: _heightController,
+                    labelText: 'Height',
+                    hintText: 'Enter height in cm',
+                    prefixIcon: Icons.height,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your height';
+                      }
+                      final height = double.tryParse(value);
+                      if (height == null || height <= 0) {
+                        return 'Please enter a valid height';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  StandardInputField(
+                    controller: _weightController,
+                    labelText: 'Weight',
+                    hintText: 'Enter weight in kg',
+                    prefixIcon: Icons.monitor_weight,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your weight';
+                      }
+                      final weight = double.tryParse(value);
+                      if (weight == null || weight <= 0) {
+                        return 'Please enter a valid weight';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  StandardInputField(
+                    controller: _ageController,
+                    labelText: 'Age',
+                    hintText: 'Enter your age',
+                    prefixIcon: Icons.cake,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your age';
+                      }
+                      final age = int.tryParse(value);
+                      if (age == null || age <= 0) {
+                        return 'Please enter a valid age';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
               ),
-              keyboardType: TextInputType.number,
             ),
-            TextField(
-              controller: _weightController,
-              decoration: const InputDecoration(
-                labelText: 'Enter weight (kg)',
+            AppContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Activity Level',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  StandardDropdown<String>(
+                    value: _activityLevel,
+                    labelText: 'Select your activity level',
+                    hintText: 'Choose activity level',
+                    items: <String>['Sedentary', 'Lightly active', 'Moderately active', 'Very active']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _activityLevel = newValue!;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Sedentary: Little or no exercise\nLightly active: Light exercise/sports 1-3 days/week\nModerately active: Moderate exercise/sports 3-5 days/week\nVery active: Hard exercise/sports 6-7 days a week',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
               ),
-              keyboardType: TextInputType.number,
             ),
-            TextField(
-              controller: _ageController,
-              decoration: const InputDecoration(
-                labelText: 'Enter age',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            DropdownButton<String>(
-              value: _activityLevel,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _activityLevel = newValue!;
-                });
-              },
-              items: <String>['Sedentary', 'Lightly active', 'Moderately active', 'Very active']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
+            const SizedBox(height: 8),
+            PrimaryButton(
+              text: 'Calculate Daily Calories',
+              icon: Icons.calculate,
               onPressed: _calculateCalories,
-              child: const Text('Calculate Calories'),
             ),
-            const SizedBox(height: 20),
-            Text('Daily Calories: $_result'),
+            if (_result.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              ResultCard(
+                title: 'Daily Calorie Needs',
+                result: _result,
+                unit: 'calories',
+                icon: Icons.local_fire_department,
+              ),
+            ],
           ],
         ),
       ),

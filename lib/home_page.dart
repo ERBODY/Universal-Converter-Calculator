@@ -42,6 +42,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    final isRTL = Translations.isRTL(widget.currentLanguage);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -65,36 +67,39 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: GridView.count(
-        crossAxisCount: 2,
-        padding: const EdgeInsets.all(16),
-        childAspectRatio: 1.0,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        children: <Widget>[
-          _buildFeatureButton(context, 'age_calculator', Icons.cake),
-          _buildFeatureButton(context, 'percentage_calculator', Icons.percent),
-          _buildFeatureButton(
-              context, 'post_tax_calculator', Icons.receipt_long),
-          _buildFeatureButton(context, 'age_difference', Icons.people),
-          _buildFeatureButton(context, 'duration_calculator', Icons.timer),
-          _buildFeatureButton(
-              context, 'calorie_calculator', Icons.local_dining),
-          _buildFeatureButton(context, 'zodiac_sign', Icons.star),
-          _buildFeatureButton(context, 'event_countdown', Icons.event),
-          _buildFeatureButton(context, 'file_converter', Icons.transform),
-          _buildFeatureButton(context, 'bmi_calculator', Icons.accessibility),
-          _buildFeatureButton(
-              context, 'currency_converter', Icons.attach_money),
-          _buildFeatureButton(context, 'Length', Icons.straighten),
-          _buildFeatureButton(context, 'Area', Icons.crop_square),
-          _buildFeatureButton(context, 'weight_and_mass', Icons.line_weight),
-          _buildFeatureButton(
-              context, 'volume_and_fluid_units', Icons.local_drink),
-          _buildFeatureButton(context, 'Temperature', Icons.thermostat),
-          _buildFeatureButton(context, 'Time', Icons.access_time),
-          _buildFeatureButton(context, 'Data', Icons.storage),
-        ],
+      body: Directionality(
+        textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+        child: GridView.count(
+          crossAxisCount: 2,
+          padding: const EdgeInsets.all(16),
+          childAspectRatio: 1.0,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          children: <Widget>[
+            _buildFeatureButton(context, 'age_calculator', Icons.cake),
+            _buildFeatureButton(context, 'percentage_calculator', Icons.percent),
+            _buildFeatureButton(
+                context, 'post_tax_calculator', Icons.receipt_long),
+            _buildFeatureButton(context, 'age_difference', Icons.people),
+            _buildFeatureButton(context, 'duration_calculator', Icons.timer),
+            _buildFeatureButton(
+                context, 'calorie_calculator', Icons.local_dining),
+            _buildFeatureButton(context, 'zodiac_sign', Icons.star),
+            _buildFeatureButton(context, 'event_countdown', Icons.event),
+            _buildFeatureButton(context, 'file_converter', Icons.transform),
+            _buildFeatureButton(context, 'bmi_calculator', Icons.accessibility),
+            _buildFeatureButton(
+                context, 'currency_converter', Icons.attach_money),
+            _buildFeatureButton(context, 'Length', Icons.straighten),
+            _buildFeatureButton(context, 'Area', Icons.crop_square),
+            _buildFeatureButton(context, 'weight_and_mass', Icons.line_weight),
+            _buildFeatureButton(
+                context, 'volume_and_fluid_units', Icons.local_drink),
+            _buildFeatureButton(context, 'Temperature', Icons.thermostat),
+            _buildFeatureButton(context, 'Time', Icons.access_time),
+            _buildFeatureButton(context, 'Data', Icons.storage),
+          ],
+        ),
       ),
     );
   }

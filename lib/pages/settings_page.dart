@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/translations.dart';
+import '../widgets/standardized_components.dart';
 
 class SettingsPage extends StatelessWidget {
   final Function(bool) toggleTheme;
