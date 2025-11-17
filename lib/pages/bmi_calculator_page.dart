@@ -140,9 +140,8 @@ class _BMICalculatorPageState extends State<BMICalculatorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(Translations.getTranslation(
-            widget.currentLanguage, 'BMI Calculator')),
+      appBar: StandardAppBar(
+        title: Translations.getTranslation(widget.currentLanguage, 'BMI Calculator'),
         actions: [
           IconButton(
             icon: const Icon(Icons.clear),
@@ -168,252 +167,243 @@ class _BMICalculatorPageState extends State<BMICalculatorPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Gender Selection Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      Translations.getTranslation(
-                          widget.currentLanguage, 'Gender'),
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
+            // Personal Information Container (Gender + Age)
+            AppContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Personal Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RadioListTile<String>(
-                            title: const Text('Male'),
-                            value: 'Male',
-                            groupValue: _gender,
-                            onChanged: (value) {
-                              setState(() {
-                                _gender = value!;
-                                _results.clear();
-                              });
-                            },
-                          ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Gender Selection
+                  Text(
+                    Translations.getTranslation(widget.currentLanguage, 'Gender'),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: RadioListTile<String>(
+                          title: const Text('Male'),
+                          value: 'Male',
+                          groupValue: _gender,
+                          onChanged: (value) {
+                            setState(() {
+                              _gender = value!;
+                              _results.clear();
+                            });
+                          },
+                          contentPadding: EdgeInsets.zero,
                         ),
-                        Expanded(
-                          child: RadioListTile<String>(
-                            title: const Text('Female'),
-                            value: 'Female',
-                            groupValue: _gender,
-                            onChanged: (value) {
-                              setState(() {
-                                _gender = value!;
-                                _results.clear();
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Weight Input Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      Translations.getTranslation(
-                          widget.currentLanguage, 'Weight'),
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: TextField(
-                            controller: _weightController,
-                            decoration: InputDecoration(
-                              hintText: 'enter weight',
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true),
-                            onChanged: (value) {
-                              setState(() => _results.clear());
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: DropdownButton<String>(
-                            value: _weightUnit,
-                            isExpanded: true,
-                            items: ['kg', 'lb'].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _weightUnit = value!;
-                                _results.clear();
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Height Input Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      Translations.getTranslation(
-                          widget.currentLanguage, 'Height'),
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: _buildHeightInput(),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: DropdownButton<String>(
-                            value: _heightUnit,
-                            isExpanded: true,
-                            items: ['cm', 'in'].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _heightUnit = value!;
-                                _heightController.clear();
-                                _feetController.clear();
-                                _inchesController.clear();
-                                _results.clear();
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Age Input Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      Translations.getTranslation(
-                          widget.currentLanguage, 'Age'),
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _ageController,
-                      decoration: InputDecoration(
-                        hintText: 'enter age',
                       ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        setState(() => _results.clear());
-                      },
-                    ),
-                  ],
-                ),
+                      Expanded(
+                        child: RadioListTile<String>(
+                          title: const Text('Female'),
+                          value: 'Female',
+                          groupValue: _gender,
+                          onChanged: (value) {
+                            setState(() {
+                              _gender = value!;
+                              _results.clear();
+                            });
+                          },
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Age Input
+                  StandardInputField(
+                    controller: _ageController,
+                    labelText: Translations.getTranslation(widget.currentLanguage, 'Age'),
+                    hintText: 'Enter your age',
+                    prefixIcon: Icons.cake,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your age';
+                      }
+                      final age = int.tryParse(value);
+                      if (age == null || age <= 0) {
+                        return 'Please enter a valid age';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
+
+            // Body Measurements Container (Weight + Height)
+            AppContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Body Measurements',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Weight Input
+                  Text(
+                    Translations.getTranslation(widget.currentLanguage, 'Weight'),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: StandardInputField(
+                          controller: _weightController,
+                          hintText: 'Enter weight',
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (value) {
+                            setState(() => _results.clear());
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 80,
+                        child: StandardDropdown<String>(
+                          value: _weightUnit,
+                          items: ['kg', 'lb'].map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _weightUnit = value!;
+                              _results.clear();
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Height Input
+                  Text(
+                    Translations.getTranslation(widget.currentLanguage, 'Height'),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: _buildHeightInput(),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 80,
+                        child: StandardDropdown<String>(
+                          value: _heightUnit,
+                          items: ['cm', 'in'].map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _heightUnit = value!;
+                              _heightController.clear();
+                              _feetController.clear();
+                              _inchesController.clear();
+                              _results.clear();
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
 
             // Calculate Button
-            ElevatedButton(
+            PrimaryButton(
+              text: Translations.getTranslation(widget.currentLanguage, 'Calculate BMI'),
+              icon: Icons.calculate,
               onPressed: _calculateBMI,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
-              ),
-              child: Text(
-                Translations.getTranslation(
-                    widget.currentLanguage, 'Calculate BMI'),
-                style: const TextStyle(fontSize: 18),
-              ),
             ),
 
             // Results Section
             if (_results.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Results',
-                        style: TextStyle(
-                          fontSize: 18,
+              const SizedBox(height: 16),
+              ResultCard(
+                title: 'BMI Result',
+                result: _results['bmi'].toStringAsFixed(1),
+                icon: Icons.monitor_heart,
+                backgroundColor: _getBMIColor(_results['bmi']).withOpacity(0.1),
+                resultStyle: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: _getBMIColor(_results['bmi']),
+                ),
+              ),
+              AppContainer(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: _getBMIColor(_results['bmi']),
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Classification',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: _getBMIColor(_results['bmi']),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: _getBMIColor(_results['bmi']),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _results['classification'],
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '${Translations.getTranslation(widget.currentLanguage, 'Your BMI is')} ${_results['bmi'].toStringAsFixed(2)}',
-                        style: const TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: _getBMIColor(_results['bmi']),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          _results['classification'],
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '${Translations.getTranslation(widget.currentLanguage, 'Ideal weight range')}: ${_results['idealWeightLow'].toStringAsFixed(1)} - ${_results['idealWeightHigh'].toStringAsFixed(1)} $_weightUnit',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '${Translations.getTranslation(widget.currentLanguage, 'Ideal weight range')}: ${_results['idealWeightLow'].toStringAsFixed(1)} - ${_results['idealWeightHigh'].toStringAsFixed(1)} $_weightUnit',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ],
                 ),
               ),
             ],
