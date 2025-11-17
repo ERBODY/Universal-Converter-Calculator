@@ -127,16 +127,15 @@ class UnifiedTheme {
   }
 }
 
-/// Unified Card Component
+/// Modern Card Component
 class UnifiedCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry? padding;
   final Color? backgroundColor;
   final bool useGlass;
-  final double? width;
-  final double? height;
   final VoidCallback? onTap;
+  final double? width;
   final String? languageCode;
 
   const UnifiedCard({
@@ -146,9 +145,8 @@ class UnifiedCard extends StatelessWidget {
     this.padding,
     this.backgroundColor,
     this.useGlass = false,
-    this.width,
-    this.height,
     this.onTap,
+    this.width,
     this.languageCode,
   }) : super(key: key);
 
@@ -158,10 +156,10 @@ class UnifiedCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final isRTL = languageCode != null && Translations.isRTL(languageCode!);
 
-    return AnimatedContainer(
-      duration: UnifiedTheme.animationDuration,
-      decoration: _getCardDecoration(isDark, useGlass, backgroundColor),
+    Widget card = Container(
+      width: width,
       margin: margin ?? const EdgeInsets.only(bottom: UnifiedTheme.spacing),
+      decoration: _getCardDecoration(isDark, useGlass, backgroundColor),
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(UnifiedTheme.borderRadius),
@@ -174,6 +172,11 @@ class UnifiedCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+
+    return AnimatedSwitcher(
+      duration: UnifiedTheme.animationDuration,
+      child: card,
     );
   }
 
@@ -203,7 +206,7 @@ class UnifiedCard extends StatelessWidget {
   }
 }
 
-/// Unified Button Component
+/// Modern Button Component
 class UnifiedButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -232,74 +235,85 @@ class UnifiedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final isRTL = languageCode != null && Translations.isRTL(languageCode!);
 
-    return AnimatedContainer(
-      duration: UnifiedTheme.animationDuration,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(UnifiedTheme.borderRadius),
-        boxShadow: [
-          BoxShadow(
-            color: (backgroundColor ?? (isSecondary ? Colors.transparent : UnifiedTheme.primaryColor)).withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+    ButtonStyle buttonStyle = _getButtonStyle(isDark, isSecondary, backgroundColor, textColor);
+
+    Widget button = ElevatedButton(
+      onPressed: isLoading ? null : onPressed,
+      style: buttonStyle.copyWith(
+        minimumSize: Size(width ?? double.infinity, UnifiedTheme.buttonHeight),
       ),
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor ?? (isSecondary ? Colors.transparent : UnifiedTheme.primaryColor),
-          foregroundColor: textColor ?? (isSecondary ? UnifiedTheme.primaryColor : Colors.white),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(UnifiedTheme.borderRadius),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          minimumSize: Size(width ?? double.infinity, UnifiedTheme.buttonHeight),
-        ),
-        child: isLoading
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    textColor ?? (isSecondary ? UnifiedTheme.primaryColor : Colors.white)),
-                ),
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
-                children: [
-                  if (icon != null) ...[
-                    Icon(
-                      icon,
-                      size: 18,
-                      color: textColor ?? (isSecondary ? UnifiedTheme.primaryColor : Colors.white),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  Flexible(
-                    child: Text(
-                      text,
-                      style: UnifiedTheme.getBodyStyle(isDark).copyWith(
-                        color: textColor ?? (isSecondary ? UnifiedTheme.primaryColor : Colors.white),
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+      child: isLoading
+          ? SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
+            )
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[
+                  Icon(
+                    icon,
+                    size: 18,
+                    color: textColor ?? Colors.white,
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Flexible(
+                  child: Text(
+                    text,
+                    style: buttonStyle.textStyle?.copyWith(
+                      color: textColor ?? Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+    );
+
+    return AnimatedSwitcher(
+      duration: UnifiedTheme.animationDuration,
+      child: button,
+    );
+  }
+
+  ButtonStyle _getButtonStyle(bool isDark, bool isSecondary, Color? backgroundColor, Color? textColor) {
+    if (isSecondary) {
+      return OutlinedButton.styleFrom(
+        foregroundColor: backgroundColor ?? UnifiedTheme.primaryColor,
+        side: BorderSide(color: backgroundColor ?? UnifiedTheme.primaryColor, width: 2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(UnifiedTheme.borderRadius),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        textStyle: TextStyle(
+          color: backgroundColor ?? UnifiedTheme.primaryColor,
+          fontWeight: FontWeight.w600,
+        ),
+      );
+    }
+
+    return ElevatedButton.styleFrom(
+      backgroundColor: backgroundColor ?? UnifiedTheme.primaryColor,
+      foregroundColor: textColor ?? Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(UnifiedTheme.borderRadius),
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
     );
   }
 }
 
-/// Unified Input Field Component
+/// Modern Input Field Component
 class UnifiedInputField extends StatelessWidget {
   final String? labelText;
   final String? hintText;
@@ -334,7 +348,7 @@ class UnifiedInputField extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final isRTL = languageCode != null && Translations.isRTL(languageCode!);
 
-    return AnimatedContainer(
+    return AnimatedSwitcher(
       duration: UnifiedTheme.animationDuration,
       child: TextFormField(
         controller: controller,
@@ -382,7 +396,7 @@ class UnifiedInputField extends StatelessWidget {
   }
 }
 
-/// Unified Result Display Component
+/// Modern Result Display Component
 class UnifiedResultDisplay extends StatelessWidget {
   final String title;
   final String result;
@@ -407,9 +421,8 @@ class UnifiedResultDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final isRTL = Translations.isRTL(languageCode);
 
-    return AnimatedContainer(
+    return AnimatedSwitcher(
       duration: UnifiedTheme.animationDuration,
       child: UnifiedCard(
         padding: const EdgeInsets.all(24),
@@ -459,68 +472,23 @@ class UnifiedResultDisplay extends StatelessWidget {
   }
 }
 
-/// Animated Container Wrapper
-class AnimatedContainer extends StatelessWidget {
+/// Simple animated container wrapper
+class AnimatedSwitcher extends StatelessWidget {
   final Widget child;
   final Duration duration;
-  final Curve curve;
-  final BoxDecoration? decoration;
-  final EdgeInsetsGeometry? padding;
-  final EdgeInsetsGeometry? margin;
 
-  const AnimatedContainer({
+  const AnimatedSwitcher({
     Key? key,
     required this.child,
     this.duration = UnifiedTheme.animationDuration,
-    this.curve = UnifiedTheme.animationCurve,
-    this.decoration,
-    this.padding,
-    this.margin,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: duration,
-      curve: curve,
-      decoration: decoration,
-      padding: padding,
-      margin: margin,
-      child: child,
-    );
-  }
-}
-
-/// Animated Position Wrapper
-class AnimatedPositioned extends StatelessWidget {
-  final Widget child;
-  final Duration duration;
-  final Curve curve;
-  final double? left;
-  final double? right;
-  final double? top;
-  final double? bottom;
-
-  const AnimatedPositioned({
-    Key? key,
-    required this.child,
-    this.duration = UnifiedTheme.animationDuration,
-    this.curve = UnifiedTheme.animationCurve,
-    this.left,
-    this.right,
-    this.top,
-    this.bottom,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedPositioned(
-      duration: duration,
-      curve: curve,
-      left: left,
-      right: right,
-      top: top,
-      bottom: bottom,
+      curve: UnifiedTheme.animationCurve,
+      decoration: BoxDecoration(color: Colors.transparent),
       child: child,
     );
   }
