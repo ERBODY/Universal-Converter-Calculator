@@ -123,6 +123,14 @@ class _FileConverterPageState extends State<FileConverterPage> {
   }
 
   Future<void> _convertFile() async {
+    // Security: Check if API key is configured
+    final apiKey = _cloudConvertToken;
+    if (apiKey == null) {
+      _showConfigurationError();
+      return;
+    }
+
+    // Validation: Check file and format selection
     if (_selectedFile == null || _targetFormat.isEmpty) {
       _showErrorDialog('Please select a file and target format');
       return;
@@ -130,6 +138,12 @@ class _FileConverterPageState extends State<FileConverterPage> {
     if (_sourceFormat == null ||
         !isValidConversion(_sourceFormat!, _targetFormat)) {
       _showErrorDialog('Invalid or unsupported conversion!');
+      return;
+    }
+
+    // Validation: Check file size
+    if (!_isFileSizeValid(_selectedFile!)) {
+      _showErrorDialog('File size exceeds $_maxFileSizeMB MB limit. Current size: ${(_selectedFile!.lengthSync() / (1024 * 1024)).toStringAsFixed(2)} MB');
       return;
     }
 
@@ -144,7 +158,7 @@ class _FileConverterPageState extends State<FileConverterPage> {
       final jobRes = await http.post(
         Uri.parse("https://api.cloudconvert.com/v2/jobs"),
         headers: {
-          'Authorization': 'Bearer $_cloudConvertToken',
+          'Authorization': 'Bearer $apiKey',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
