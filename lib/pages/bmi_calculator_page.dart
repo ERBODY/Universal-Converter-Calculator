@@ -93,42 +93,69 @@ class _BMICalculatorPageState extends State<BMICalculatorPage> {
 
   Widget _buildHeightInput() {
     if (_heightUnit == 'cm') {
-      return TextField(
+      return StandardInputField(
         controller: _heightController,
-        decoration: InputDecoration(
-          hintText: 'enter height',
-        ),
+        hintText: 'Enter height in cm',
+        prefixIcon: Icons.height,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         onChanged: (value) {
           setState(() => _results.clear());
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter height';
+          }
+          final height = double.tryParse(value);
+          if (height == null || height <= 0) {
+            return 'Please enter a valid height';
+          }
+          return null;
         },
       );
     } else {
       return Row(
         children: [
           Expanded(
-            child: TextField(
+            child: StandardInputField(
               controller: _feetController,
-              decoration: const InputDecoration(
-                hintText: 'feet',
-              ),
+              hintText: 'Feet',
+              prefixIcon: Icons.height,
               keyboardType: TextInputType.number,
               onChanged: (value) {
                 setState(() => _results.clear());
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Enter feet';
+                }
+                final feet = int.tryParse(value);
+                if (feet == null || feet < 0) {
+                  return 'Invalid feet value';
+                }
+                return null;
               },
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: TextField(
+            child: StandardInputField(
               controller: _inchesController,
-              decoration: const InputDecoration(
-                hintText: 'inches',
-              ),
+              hintText: 'Inches',
+              prefixIcon: Icons.height,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               onChanged: (value) {
                 setState(() => _results.clear());
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Enter inches';
+                }
+                final inches = double.tryParse(value);
+                if (inches == null || inches < 0 || inches >= 12) {
+                  return 'Invalid inches value';
+                }
+                return null;
               },
             ),
           ),
