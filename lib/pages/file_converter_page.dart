@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../utils/translations.dart';
 import '../utils/conversion_mapping.dart';
+import '../widgets/standardized_components.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
