@@ -229,8 +229,8 @@ class _FileConverterPageState extends State<FileConverterPage> {
         await Future.delayed(const Duration(seconds: 2));
         final checkRes = await http.get(
           Uri.parse("https://api.cloudconvert.com/v2/jobs/$jobId"),
-          headers: {'Authorization': 'Bearer $_cloudConvertToken'},
-        );
+          headers: {'Authorization': 'Bearer $apiKey'},
+        ).timeout(Duration(minutes: _timeoutMinutes));
 
         if (checkRes.statusCode != 200) {
           throw Exception('Failed to check job status');
