@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AnimatedSwitch extends StatelessWidget {
+class CustomAnimatedSwitch extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
   final Duration duration;
@@ -12,7 +12,7 @@ class AnimatedSwitch extends StatelessWidget {
   final Color activeColorIcon;
   final Color inactiveColorIcon;
 
-  const AnimatedSwitch({
+  const CustomAnimatedSwitch({
     Key? key,
     required this.value,
     required this.onChanged,
@@ -74,13 +74,13 @@ class AnimatedSwitch extends StatelessWidget {
   }
 }
 
-class AnimatedContainer extends StatelessWidget {
+class CustomAnimatedContainer extends StatelessWidget {
   final Widget child;
   final Duration duration;
   final Curve curve;
   final BoxDecoration? decoration;
 
-  const AnimatedContainer({
+  const CustomAnimatedContainer({
     Key? key,
     required this.child,
     this.duration = const Duration(milliseconds: 200),
@@ -99,7 +99,7 @@ class AnimatedContainer extends StatelessWidget {
   }
 }
 
-class AnimatedPositioned extends StatelessWidget {
+class CustomAnimatedPositioned extends StatelessWidget {
   final Widget child;
   final Duration duration;
   final Curve curve;
@@ -108,7 +108,7 @@ class AnimatedPositioned extends StatelessWidget {
   final double? top;
   final double? bottom;
 
-  const AnimatedPositioned({
+  const CustomAnimatedPositioned({
     Key? key,
     required this.child,
     this.duration = const Duration(milliseconds: 200),
