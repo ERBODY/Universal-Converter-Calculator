@@ -19,10 +19,17 @@ class _CalorieCalculatorPageState extends State<CalorieCalculatorPage> {
     double height = double.tryParse(_heightController.text) ?? 0.0;
     double weight = double.tryParse(_weightController.text) ?? 0.0;
     int age = int.tryParse(_ageController.text) ?? 0;
+
+    // Input validation
+    if (height <= 0 || weight <= 0 || age <= 0) {
+      showStandardError(context, 'Invalid Input', 'Please enter valid positive values for all fields');
+      return;
+    }
+
     double bmr;
 
-    // Basic BMR calculation using Mifflin-St Jeor Equation
-    bmr = 10 * weight + 6.25 * height - 5 * age + 5; // Assuming male for simplicity
+    // Basic BMR calculation using Mifflin-St Jeor Equation (assuming male for simplicity)
+    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
 
     double activityMultiplier;
     switch (_activityLevel) {
@@ -45,7 +52,17 @@ class _CalorieCalculatorPageState extends State<CalorieCalculatorPage> {
     double dailyCalories = bmr * activityMultiplier;
 
     setState(() {
-      _result = dailyCalories.toStringAsFixed(2);
+      _result = dailyCalories.toStringAsFixed(0);
+    });
+  }
+
+  void _clearAll() {
+    setState(() {
+      _heightController.clear();
+      _weightController.clear();
+      _ageController.clear();
+      _activityLevel = 'Sedentary';
+      _result = '';
     });
   }
 
