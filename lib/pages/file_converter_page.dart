@@ -29,8 +29,18 @@ class _FileConverterPageState extends State<FileConverterPage> {
   double _conversionProgress = 0.0;
   String? _downloadUrl;
 
-  static const _cloudConvertToken =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiM2ZiODVkMTBhMTdjMzhkMTQ2MTRkODZmNjkwYzRmNjFiMThlZDA1NTFmNzk3ZWUwMTYxNDRjY2ViNmU4MDZkYTQ1MzU4NzQyOTA0MTdkYWMiLCJpYXQiOjE3NTE2NDMzMTEuNTY2NzczLCJuYmYiOjE3NTE2NDMzMTEuNTY2Nzc1LCJleHAiOjQ5MDczMTY5MTEuNTYyMjYsInN1YiI6IjcyMTQzMzQyIiwic2NvcGVzIjpbInVzZXIucmVhZCIsInVzZXIud3JpdGUiLCJ0YXNrLnJlYWQiLCJ0YXNrLndyaXRlIiwid2ViaG9vay5yZWFkIiwid2ViaG9vay53cml0ZSIsInByZXNldC5yZWFkIiwicHJlc2V0LndyaXRlIl19.opQfxX8w9sTDR7BtZyMsLw6QhfIEnHOvfD4xSsGc1gJ2ZVwJ625wXeM4LzV5guNz5lhiqjMIh6dCxizrXy63zbfSKuOwV6N3ehSVKFpyIViBNS-xlDpsL-ODlYPpc4UghxanvSCld4bAchwbSUgk9Ab4dwZpQsFUgsPVKbgUYXOQl4JPc56vpTb6FoUFsRpF4Sbd6hFcIbDtrhQzRhPeCpuqFoFAG2NOEti8kDZdnQmqs-JMFPLuoRF-uQsIcJR-uNpTakkcQmOUmroIw5yZi79sXUV_eyxDvFlYWqQehTmodl8mj8MsagGM3ezo37i164M_StoPD7mSkoVlHOJVKB4lGizAFdqUi1iG3PlDLEq-5aP0j0QgF9QD4WCOxGoqagGIsWXTtPyAo4HvXMQmS85R_n0mIw-F3hT8ajgUo4X3NuEClSCvwoI1SaXToIEeK2SWD7wnoLLGXB3mFrDfoo3vQhwxySPNkb9W7dqDMXCI9aEpS8aNTih-RG49x_cNqghZhZIAUlO1cxJClCWR8w99dQQs-pmUjkStrTktoOG3s3vR0iSK9Rtq35yMF0LCb58ZffTYC_6v4eCwg6SzNzNXK_1Pe638nBpzir4EMk0YW9ymeLg4w19kxgHPahe2Ncquy0V3S3xos1Y78hGytBS6cmpOr4FOJOgrg-KWf0E';
+  // Security: Load API key from environment variables
+  String? get _cloudConvertToken {
+    final apiKey = dotenv.env['CLOUDCONVERT_API_KEY'];
+    if (apiKey == null || apiKey.isEmpty || apiKey == 'your_cloudconvert_api_key_here') {
+      return null;
+    }
+    return apiKey;
+  }
+
+  // Configuration
+  final int _maxFileSizeMB = int.tryParse(dotenv.env['MAX_FILE_SIZE_MB'] ?? '100') ?? 100;
+  final int _timeoutMinutes = int.tryParse(dotenv.env['SUPPORTED_CONVERSION_TIMEOUT_MINUTES'] ?? '10') ?? 10;
 
   Future<void> _pickFile() async {
     try {
