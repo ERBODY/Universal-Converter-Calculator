@@ -45,7 +45,6 @@ class AnimatedSwitch extends StatelessWidget {
               duration: duration,
               curve: curve,
               left: value ? 22 : 2,
-              right: value ? 2 : 22,
               top: 0,
               bottom: 0,
               child: AnimatedContainer(
