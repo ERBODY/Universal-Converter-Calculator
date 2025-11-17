@@ -262,8 +262,28 @@ class _FileConverterPageState extends State<FileConverterPage> {
         _isConverting = false;
         _conversionProgress = 0.0;
       });
-      _showErrorDialog('Error during conversion: $e');
+
+      // Enhanced error handling with specific error types
+      String errorMessage = 'Error during conversion: $e';
+      if (e is SocketException || e.toString().contains('Network is unreachable')) {
+        errorMessage = 'Network error. Please check your internet connection and try again.';
+      } else if (e is TimeoutException) {
+        errorMessage = 'Conversion timed out. Please try again with a smaller file or different format.';
+      } else if (e.toString().contains('401') || e.toString().contains('403')) {
+        errorMessage = 'Authentication error. Please check your API key configuration.';
+      } else if (e.toString().contains('429')) {
+        errorMessage = 'Too many requests. Please wait and try again.';
+      } else if (e.toString().contains('500') || e.toString().contains('503')) {
+        errorMessage = 'Service unavailable. Please try again later.';
+      }
+
+      _showErrorDialog(errorMessage);
     }
+  }
+
+  // Retry conversion functionality
+  Future<void> _retryConversion() async {
+    await _convertFile();
   }
 
   void _clearAll() {
